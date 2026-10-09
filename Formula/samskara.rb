@@ -5,7 +5,7 @@ class Samskara < Formula
   sha256 "5ce782d1884082419734f090a2b2d19083d07a34f595b9e953074ee49703db62"
   license "MIT"
 
-  depends_on "node"
+  depends_on "node@24"
 
   def install
     system "npm", "install", *std_npm_args(ignore_scripts: false)
