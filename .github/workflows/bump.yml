@@ -1,0 +1,56 @@
+name: bump
+
+on:
+  schedule:
+    - cron: "23 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency: bump
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Point the formula at the latest samskara release
+        id: bump
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: vertexcover-io/samskara
+          FORMULA: Formula/samskara.rb
+        run: |
+          set -euo pipefail
+          tag=$(gh release view -R "$REPO" --json tagName -q .tagName)
+          version=${tag#v}
+          current=$(sed -nE 's|^  url ".*/download/v([^/]+)/.*|\1|p' "$FORMULA")
+          if [ "$version" = "$current" ]; then
+            echo "Formula already at $current"
+            exit 0
+          fi
+          asset=$(gh release view "$tag" -R "$REPO" --json assets \
+            -q "[.assets[].name | select(endswith(\"-$version.tgz\"))][0] // empty")
+          if [ -z "$asset" ]; then
+            echo "::error::$tag has no asset named *-$version.tgz"
+            exit 1
+          fi
+          url="https://github.com/$REPO/releases/download/$tag/$asset"
+          sha=$(curl -fsSL "$url" | sha256sum | cut -d' ' -f1)
+          sed -i.bak -E \
+            -e "s|^  url \".*\"|  url \"$url\"|" \
+            -e "s|^  sha256 \".*\"|  sha256 \"$sha\"|" \
+            "$FORMULA"
+          rm "$FORMULA.bak"
+          echo "Bumped $current -> $version ($sha)"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push
+        if: steps.bump.outputs.version != ''
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "samskara ${{ steps.bump.outputs.version }}"
+          git push
