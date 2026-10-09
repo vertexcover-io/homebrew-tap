@@ -5,6 +5,7 @@ Homebrew formulae for [samskara](https://github.com/vertexcover-io/samskara), th
 ## Install
 
 ```bash
+brew trust vertexcover-io/tap
 brew install vertexcover-io/tap/samskara
 samskara --version
 ```
