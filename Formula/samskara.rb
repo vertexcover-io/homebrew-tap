@@ -1,8 +1,8 @@
 class Samskara < Formula
   desc "Capture and search AI coding-agent session logs"
   homepage "https://github.com/vertexcover-io/samskara"
-  url "https://github.com/vertexcover-io/samskara/releases/download/v0.5.7/samskara-cli-0.5.7.tgz"
-  sha256 "06acdb947024ca0b4680f0749a46f7f7c343bc8906ac9dcfdb2972cc742c295c"
+  url "https://github.com/vertexcover-io/samskara/releases/download/v0.5.8/samskara-cli-0.5.8.tgz"
+  sha256 "3792e7f7f5beb878f352c996361d27a04a71f5535707aed8ebc58702f1b48db8"
   license "MIT"
 
   depends_on "node@24"
